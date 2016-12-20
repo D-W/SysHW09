@@ -2,48 +2,79 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "pipe_networking.h"
 
-int MESSAGE_BUFFER_SIZE = 50;
+#define MESSAGE_BUFFER_SIZE = 100;
 
-int server_handshake(int *i) {
+int server_handshake(int *client) {
     //1) Server creates a FIFO (Well Known Pipe)
+    mkfifo("wkp", 0644);
+    printf("[SERVER] wkp created\n");
+
     //2) Server waits for a connection (open call)
-    mkfifo("atob", 0644);
-    int fd = open("atob", O_RDONLY);
+    char buf[MESSAGE_BUFFER_SIZE];
+    int fd = open("wkp", O_RDONLY);
+    printf("[SERVER] connection attempt, waiting for client\n");
+
+    //-------
 
     //6) Server receives client’s message and removes the WKP
-    char buf[50];
     read(fd, buf, sizeof(buf));
-    //7) Server connects to client FIFO, sending an initial acknowledgement message
+    printf("received client's message: %s\n", );
     close(fd);
-    write(i, buf, sizeof(buf));
+    remove("wkp");
+    printf("[SERVER] wkp removed\n");
+
+    //7) Server connects to client FIFO, sending an initial acknowledgement message
+    int fd2 = open("buf, O_WRONLY");
+    char message = "heyo";
+    write(fd2, message, sizeof(message));
+    printf("[SERVER] sent message")
+    return fd2;
 
 }
 
-int client_handshake(int *i) {
+
+
+int client_handshake(int *server) {
     //3) Client creates a “private” FIFO
+    char note = (char *)getpid();
+    mkfifo(note,0644);
+    printf("[CLIENT]: private pipe made");
+
     //4) Client connects to server and send the private FIFO name (write)
-    mkfifo("btoa", 044);
-    int fd = open("btoa", O_WRONLY);
-    write(i, "btoa", 4);
-    char buf[50];
-    write(fd, buf, sizeof(buf));
+    int pd = open("wkp", O_WRONLY);
+    write(pd, note, sizeof(note));
+    printf("[CLIENT] sent message"); 
+
+
+    //5) Client waits for a message from the server (open call)
+    int pd2 = open(note, O_RDONLY);
+
+    //-------
+
     //8) Client receives server’s message, removes its private FIFO
+    char buf[MESSAGE_BUFFER_SIZE];
+    read(pd2, buf, sizeof(buf));
+    printf("[CLIENT]: got message: %s",buf);
+
+    close(pd2);
+    printf("[CLIENT]: removed pipe");
+
+
     //9) Client sends a confirmation message to the server
-    read(i, buf, sizeof(buf));
+    char message = "hi confirmation";
+    write(pd2,message,sizeof(message));
+    return pd2;
 
 
 
 }
 
-int main() {
-    //1) Server creates a FIFO (Well Known Pipe)
-    //2) Server waits for a connection (open call)
-    mkfifo("atob", 0644);
-    return 0;
-}
+
 
 /*
 Basic Handshake Procedure:
