@@ -1,11 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include "pipe_networking.h"
+#define MESSAGE_BUFFER_SIZE 100
+#define HANDSHAKE_BUFFER_SIZE 100
 
 int server_handshake(int *client);
 int client_handshake(int *server);
+int server_handshake1(char *buffer);
+int server_handshake2(char *buffer, int from_client);

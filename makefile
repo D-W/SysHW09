@@ -1,18 +1,16 @@
-fserver: fserver.o pipe_networking.o
-	gcc -o fserver fserver.o pipe_networking.o
+make: server client fserver
 
-server: server.o pipe_networking.o
-	gcc -o server server.o pipe_networking.o
+server: server.c pipe_networking.c
+	gcc server.c pipe_networking.c -o server
 
-client: client.o pipe_networking.o
-	gcc -o client client.o pipe_networking.o
+client: client.c pipe_networking.c
+	gcc client.c pipe_networking.c -o client
 
-fserver.o: fserver.c pipe_networking.h
-	gcc -c fserver.c
+fserver: fserver.c pipe_networking.c
+	gcc fserver.c pipe_networking.c -o fserver
 
-server: server.c pipe_networking.h
-	gcc -c server.c
-
-client: clent.c pipe_networking.h
-	gcc -c client.c
-
+clean:
+	rm server
+	rm client
+	rm fserver
+	rm *~
